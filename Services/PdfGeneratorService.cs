@@ -1,12 +1,10 @@
 using Bravetech.Report.PdfGenerator.Interfaces;
 using Bravetech.Report.PdfGenerator.Models;
 using iText.Html2pdf;
-using iText.Html2pdf.Resolver.Font;
 using iText.IO.Font.Constants;
 using iText.Kernel.Font;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
-using System;
 using System.IO;
 
 namespace Bravetech.Report.PdfGenerator
@@ -25,15 +23,10 @@ namespace Bravetech.Report.PdfGenerator
             var pdfDoc = new PdfDocument(writer);
             pdfDoc.SetDefaultPageSize(pageSize);
 
-            var fontProvider = new DefaultFontProvider(false, false, false);
-            var fontPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Fonts", "Inter_18pt-Regular.ttf");
             var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
-
             var converterProperties = new ConverterProperties();
-            converterProperties.SetFontProvider(fontProvider);
-            converterProperties.SetCharset("utf-8");
 
-            var document = HtmlConverter.ConvertToDocument(html, pdfDoc, converterProperties);
+            HtmlConverter.ConvertToDocument(html, pdfDoc, converterProperties);
 
             int totalPages = pdfDoc.GetNumberOfPages();
             for (int i = 1; i <= totalPages; i++)
@@ -42,20 +35,22 @@ namespace Bravetech.Report.PdfGenerator
                 var canvas = new iText.Kernel.Pdf.Canvas.PdfCanvas(page.NewContentStreamBefore(), page.GetResources(), pdfDoc);
                 var pageSizeObj = page.GetPageSize();
 
+                // Header
                 canvas.BeginText();
                 canvas.SetFontAndSize(font, 12);
                 canvas.MoveText(pageSizeObj.GetWidth() / 2 - 50, pageSizeObj.GetTop() - 20);
-                canvas.ShowText(relatorioOptions.HeaderText);
+                canvas.ShowText(relatorioOptions.HeaderText ?? "");
                 canvas.EndText();
 
+                // Footer
                 canvas.BeginText();
                 canvas.SetFontAndSize(font, 10);
                 canvas.MoveText(pageSizeObj.GetWidth() / 2 - 30, pageSizeObj.GetBottom() + 20);
-                canvas.ShowText($"{relatorioOptions.FooterText} - Página {i} de {totalPages}");
+                canvas.ShowText($"{relatorioOptions.FooterText ?? ""} - Página {i} de {totalPages}");
                 canvas.EndText();
             }
 
-            document.Close();
+            pdfDoc.Close();
             return ms.ToArray();
         }
     }
