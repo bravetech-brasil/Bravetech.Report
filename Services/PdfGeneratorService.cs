@@ -1,5 +1,5 @@
+using Bravetech.Report.Models;
 using Bravetech.Report.PdfGenerator.Interfaces;
-using Bravetech.Report.PdfGenerator.Models;
 using iText.Html2pdf;
 using iText.IO.Font.Constants;
 using iText.Kernel.Font;
@@ -15,19 +15,20 @@ namespace Bravetech.Report.PdfGenerator
         {
         }
 
-        public byte[] GerarPdf(string html, RelatorioOptions relatorioOptions)
+        public byte[] GerarPdf(string html, Relatorio relatorio)
         {
             using var ms = new MemoryStream();
+
             var writer = new PdfWriter(ms);
-            var pageSize = relatorioOptions.Portrait ? PageSize.A4 : PageSize.A4.Rotate();
+            var pageSize = ObterTamanhoPapel(relatorio.TamanhoPapel, relatorio.OrientacaoRetrato);
+
             var pdfDoc = new PdfDocument(writer);
             pdfDoc.SetDefaultPageSize(pageSize);
 
-            var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
             var converterProperties = new ConverterProperties();
-
             HtmlConverter.ConvertToDocument(html, pdfDoc, converterProperties);
 
+            var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
             int totalPages = pdfDoc.GetNumberOfPages();
             for (int i = 1; i <= totalPages; i++)
             {
@@ -35,23 +36,32 @@ namespace Bravetech.Report.PdfGenerator
                 var canvas = new iText.Kernel.Pdf.Canvas.PdfCanvas(page.NewContentStreamBefore(), page.GetResources(), pdfDoc);
                 var pageSizeObj = page.GetPageSize();
 
-                // Header
-                canvas.BeginText();
-                canvas.SetFontAndSize(font, 12);
-                canvas.MoveText(pageSizeObj.GetWidth() / 2 - 50, pageSizeObj.GetTop() - 20);
-                canvas.ShowText(relatorioOptions.HeaderText ?? "");
-                canvas.EndText();
-
-                // Footer
                 canvas.BeginText();
                 canvas.SetFontAndSize(font, 10);
-                canvas.MoveText(pageSizeObj.GetWidth() / 2 - 30, pageSizeObj.GetBottom() + 20);
-                canvas.ShowText($"{relatorioOptions.FooterText ?? ""} - Página {i} de {totalPages}");
+                canvas.MoveText(pageSizeObj.GetWidth() / 2 - 60, pageSizeObj.GetBottom() + 20);
+                canvas.ShowText($"{relatorio.Rodape ?? ""} - Página {i} de {totalPages}");
                 canvas.EndText();
             }
 
             pdfDoc.Close();
             return ms.ToArray();
+        }
+
+        private PageSize ObterTamanhoPapel(string tamanho, bool retrato)
+        {
+            tamanho = tamanho?.ToUpperInvariant() ?? "A4";
+
+            var pageSize = tamanho switch
+            {
+                "A3" => PageSize.A3,
+                "A5" => PageSize.A5,
+                "LETTER" => PageSize.LETTER,
+                "LEGAL" => PageSize.LEGAL,
+                "TABLOID" => PageSize.TABLOID,
+                _ => PageSize.A4
+            };
+
+            return retrato ? pageSize : pageSize.Rotate();
         }
     }
 }
