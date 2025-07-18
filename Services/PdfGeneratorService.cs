@@ -27,7 +27,7 @@ namespace Bravetech.Report.PdfGenerator
             pdfDoc.SetDefaultPageSize(pageSize);
 
             var fontProvider = new DefaultFontProvider(false, false, false);
-            var fontPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Fonts", "Inter-Regular.ttf");
+            var fontPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Fonts", "Inter_18pt-Regular.ttf");
 
             PdfFont font = null;
             font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
