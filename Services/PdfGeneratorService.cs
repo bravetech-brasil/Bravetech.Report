@@ -7,42 +7,38 @@ using iText.IO.Font.Constants;
 using iText.Kernel.Font;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
-using Microsoft.Extensions.Options;
 using System.IO;
 
 namespace Bravetech.Report.PdfGenerator
 {
     public class PdfGeneratorService : IPdfGeneratorService
     {
-        private readonly RelatorioOptions _options;
-
-        public PdfGeneratorService(IOptions<RelatorioOptions> options)
+        public PdfGeneratorService()
         {
-            _options = options.Value;
         }
 
-        public byte[] GerarPdf(string html)
+        public byte[] GerarPdf(string html, RelatorioOptions relatorioOptions)
         {
             using var ms = new MemoryStream();
             var writer = new PdfWriter(ms);
-            var pageSize = _options.Portrait ? PageSize.A4 : PageSize.A4.Rotate();
+            var pageSize = relatorioOptions.Portrait ? PageSize.A4 : PageSize.A4.Rotate();
             var pdfDoc = new PdfDocument(writer);
             pdfDoc.SetDefaultPageSize(pageSize);
 
             var fontProvider = new DefaultFontProvider(false, false, false);
             var fontPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "fonts", "Inter-Regular.ttf");
 
-            PdfFont interFont = null;
-            interFont = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+            PdfFont font = null;
+            font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
 
             if (File.Exists(fontPath))
             {
                 fontProvider.AddFont(fontPath);
-                interFont = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+                font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
             }
             else
             {
-                interFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+                font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
             }
 
             var converterProperties = new ConverterProperties();
@@ -59,15 +55,15 @@ namespace Bravetech.Report.PdfGenerator
                 var pageSizeObj = page.GetPageSize();
 
                 canvas.BeginText();
-                canvas.SetFontAndSize(interFont, 12);
+                canvas.SetFontAndSize(font, 12);
                 canvas.MoveText(pageSizeObj.GetWidth() / 2 - 50, pageSizeObj.GetTop() - 20);
-                canvas.ShowText(_options.HeaderText);
+                canvas.ShowText(relatorioOptions.HeaderText);
                 canvas.EndText();
 
                 canvas.BeginText();
-                canvas.SetFontAndSize(interFont, 10);
+                canvas.SetFontAndSize(font, 10);
                 canvas.MoveText(pageSizeObj.GetWidth() / 2 - 30, pageSizeObj.GetBottom() + 20);
-                canvas.ShowText($"{_options.FooterText} - Página {i} de {totalPages}");
+                canvas.ShowText($"{relatorioOptions.FooterText} - Página {i} de {totalPages}");
                 canvas.EndText();
             }
 
