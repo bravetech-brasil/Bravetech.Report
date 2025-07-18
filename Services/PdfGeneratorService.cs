@@ -2,7 +2,6 @@ using Bravetech.Report.PdfGenerator.Interfaces;
 using Bravetech.Report.PdfGenerator.Models;
 using iText.Html2pdf;
 using iText.Html2pdf.Resolver.Font;
-using iText.IO.Font;
 using iText.IO.Font.Constants;
 using iText.Kernel.Font;
 using iText.Kernel.Geom;
@@ -28,19 +27,7 @@ namespace Bravetech.Report.PdfGenerator
 
             var fontProvider = new DefaultFontProvider(false, false, false);
             var fontPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Fonts", "Inter_18pt-Regular.ttf");
-
-            PdfFont font = null;
-            font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-
-            if (File.Exists(fontPath))
-            {
-                fontProvider.AddFont(fontPath);
-                font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
-            }
-            else
-            {
-                font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
-            }
+            var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
 
             var converterProperties = new ConverterProperties();
             converterProperties.SetFontProvider(fontProvider);
