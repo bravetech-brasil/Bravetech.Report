@@ -7,6 +7,7 @@ using iText.IO.Font.Constants;
 using iText.Kernel.Font;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
+using System;
 using System.IO;
 
 namespace Bravetech.Report.PdfGenerator
@@ -26,7 +27,7 @@ namespace Bravetech.Report.PdfGenerator
             pdfDoc.SetDefaultPageSize(pageSize);
 
             var fontProvider = new DefaultFontProvider(false, false, false);
-            var fontPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "fonts", "Inter-Regular.ttf");
+            var fontPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Fonts", "Inter-Regular.ttf");
 
             PdfFont font = null;
             font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
