@@ -3,7 +3,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Bravetech.Report</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>Bravetech</Authors>
     <Company>Bravetech</Company>
     <Description>Geração de PDF a partir de HTML usando iText7 com suporte a cabeçalho, rodapé e opções configuráveis.</Description>
