@@ -5,6 +5,7 @@ using iText.IO.Font.Constants;
 using iText.Kernel.Font;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas;
 using System.IO;
 
 namespace Bravetech.Report.PdfGenerator
@@ -33,15 +34,19 @@ namespace Bravetech.Report.PdfGenerator
             for (int i = 1; i <= totalPages; i++)
             {
                 var page = pdfDoc.GetPage(i);
-                var canvas = new iText.Kernel.Pdf.Canvas.PdfCanvas(page.NewContentStreamBefore(), page.GetResources(), pdfDoc);
+                var canvas = new PdfCanvas(page.NewContentStreamBefore(), page.GetResources(), pdfDoc);
                 var pageSizeObj = page.GetPageSize();
+
                 var footer = string.IsNullOrWhiteSpace(relatorio.FooterText)
                     ? $"Página {i} de {totalPages}"
                     : $"{relatorio.FooterText} - Página {i} de {totalPages}";
 
+                float x = (pageSizeObj.GetWidth() - font.GetWidth(footer, 10)) / 2;
+                float y = pageSizeObj.GetBottom() + 20;
+
                 canvas.BeginText();
                 canvas.SetFontAndSize(font, 10);
-                canvas.MoveText(pageSizeObj.GetWidth() / 2 - 60, pageSizeObj.GetBottom() + 20);
+                canvas.MoveText(x, y);
                 canvas.ShowText(footer);
                 canvas.EndText();
             }
