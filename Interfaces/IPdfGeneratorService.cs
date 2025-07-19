@@ -4,6 +4,6 @@ namespace Bravetech.Report.PdfGenerator.Interfaces
 {
     public interface IPdfGeneratorService
     {
-        byte[] GerarPdf(string html, Relatorio relatorio);
+        byte[] GerarPdf(string html, Config relatorio);
     }
 }

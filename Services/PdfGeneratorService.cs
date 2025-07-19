@@ -15,12 +15,12 @@ namespace Bravetech.Report.PdfGenerator
         {
         }
 
-        public byte[] GerarPdf(string html, Relatorio relatorio)
+        public byte[] GerarPdf(string html, Config relatorio)
         {
             using var ms = new MemoryStream();
 
             var writer = new PdfWriter(ms);
-            var pageSize = ObterTamanhoPapel(relatorio.TamanhoPapel, relatorio.OrientacaoRetrato);
+            var pageSize = GetPaperSize(relatorio.PageSize, relatorio.Portrait);
 
             var pdfDoc = new PdfDocument(writer);
             pdfDoc.SetDefaultPageSize(pageSize);
@@ -35,11 +35,14 @@ namespace Bravetech.Report.PdfGenerator
                 var page = pdfDoc.GetPage(i);
                 var canvas = new iText.Kernel.Pdf.Canvas.PdfCanvas(page.NewContentStreamBefore(), page.GetResources(), pdfDoc);
                 var pageSizeObj = page.GetPageSize();
+                var footer = string.IsNullOrWhiteSpace(relatorio.FooterText)
+                    ? $"Página {i} de {totalPages}"
+                    : $"{relatorio.FooterText} - Página {i} de {totalPages}";
 
                 canvas.BeginText();
                 canvas.SetFontAndSize(font, 10);
                 canvas.MoveText(pageSizeObj.GetWidth() / 2 - 60, pageSizeObj.GetBottom() + 20);
-                canvas.ShowText($"{relatorio.Rodape ?? ""} - Página {i} de {totalPages}");
+                canvas.ShowText(footer);
                 canvas.EndText();
             }
 
@@ -47,11 +50,11 @@ namespace Bravetech.Report.PdfGenerator
             return ms.ToArray();
         }
 
-        private PageSize ObterTamanhoPapel(string tamanho, bool retrato)
+        private PageSize GetPaperSize(string size, bool retrato)
         {
-            tamanho = tamanho?.ToUpperInvariant() ?? "A4";
+            size = size?.ToUpperInvariant() ?? "A4";
 
-            var pageSize = tamanho switch
+            var pageSize = size switch
             {
                 "A3" => PageSize.A3,
                 "A5" => PageSize.A5,
