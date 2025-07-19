@@ -27,7 +27,20 @@ namespace Bravetech.Report.PdfGenerator
             pdfDoc.SetDefaultPageSize(pageSize);
 
             var converterProperties = new ConverterProperties();
-            HtmlConverter.ConvertToDocument(html, pdfDoc, converterProperties);
+            var document = new iText.Layout.Document(pdfDoc, pageSize);
+
+            float top = (float)relatorio.MargemTopo * 2.835f;
+            float right = (float)relatorio.MargemDireita * 2.835f;
+            float bottom = (float)relatorio.MargemInferior * 2.835f;
+            float left = (float)relatorio.MargemEsquerda * 2.835f;
+
+            document.SetMargins(top, right, bottom, left);
+            var elements = HtmlConverter.ConvertToElements(html, converterProperties);
+
+            foreach (var element in elements)
+            {
+                document.Add((iText.Layout.Element.IBlockElement)element);
+            }
 
             var font = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
             int totalPages = pdfDoc.GetNumberOfPages();
@@ -51,9 +64,10 @@ namespace Bravetech.Report.PdfGenerator
                 canvas.EndText();
             }
 
-            pdfDoc.Close();
+            document.Close(); 
             return ms.ToArray();
         }
+
 
         private PageSize GetPaperSize(string size, bool retrato)
         {
