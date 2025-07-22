@@ -26,7 +26,6 @@ namespace Bravetech.Report.PdfGenerator
             var pdfDoc = new PdfDocument(writer);
             pdfDoc.SetDefaultPageSize(pageSize);
 
-            var converterProperties = new ConverterProperties();
             var document = new iText.Layout.Document(pdfDoc, pageSize);
 
             float top = (float)relatorio.MargemTopo * 2.835f;
@@ -35,7 +34,7 @@ namespace Bravetech.Report.PdfGenerator
             float left = (float)relatorio.MargemEsquerda * 2.835f;
 
             document.SetMargins(top, right, bottom, left);
-            var elements = HtmlConverter.ConvertToElements(html, converterProperties);
+            var elements = HtmlConverter.ConvertToElements(html);
 
             foreach (var element in elements)
             {
