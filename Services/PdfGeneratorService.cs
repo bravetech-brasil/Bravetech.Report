@@ -58,19 +58,21 @@ namespace Bravetech.Report.PdfGenerator
             var bottom = $"{relatorio.MargemInferior:0.###}mm";
             var left = $"{relatorio.MargemEsquerda:0.###}mm";
 
-            // Texto do rodapé
-            var prefix = string.IsNullOrWhiteSpace(relatorio.FooterText)
-                ? ""
-                : relatorio.FooterText.Trim() + " - ";
+            // Verifica se é uma etiqueta para NÃO imprimir o rodapé "Singular" e "Página X"
+            var isEtiqueta = relatorio.PageSize?.ToUpperInvariant().Contains("ETIQUETA") == true;
 
-            var culture = CultureInfo.GetCultureInfo("pt-BR");
-            var dataHoraUtc = DateTime.UtcNow.ToString("g", culture) + " UTC";
+            string rodapeCss = "";
 
-            return $@"
-            <style>
-              @page {{
-                margin: {top} {right} {bottom} {left};
+            if (!isEtiqueta)
+            {
+                var prefix = string.IsNullOrWhiteSpace(relatorio.FooterText)
+                    ? ""
+                    : relatorio.FooterText.Trim() + " - ";
 
+                var culture = CultureInfo.GetCultureInfo("pt-BR");
+                var dataHoraUtc = DateTime.UtcNow.ToString("g", culture) + " UTC";
+
+                rodapeCss = $@"
                 @bottom-left {{
                   content: '{EscapeCss(prefix)}{dataHoraUtc}';
                   font-family: Helvetica, Arial, sans-serif;
@@ -81,7 +83,14 @@ namespace Bravetech.Report.PdfGenerator
                   content: 'Página ' counter(page) ' de ' counter(pages);
                   font-family: Helvetica, Arial, sans-serif;
                   font-size: 10pt;
-                }}
+                }}";
+            }
+
+            return $@"
+            <style>
+              @page {{
+                margin: {top} {right} {bottom} {left};
+                {rodapeCss}
               }}
 
               body {{
@@ -130,6 +139,10 @@ namespace Bravetech.Report.PdfGenerator
                 "LETTER" => PageSize.LETTER,
                 "LEGAL" => PageSize.LEGAL,
                 "TABLOID" => PageSize.TABLOID,
+
+                // Retornamos A4 para a folha, pois o tamanho de 100x50mm será controlado dentro do próprio HTML
+                "ETIQUETA" => PageSize.A4,
+
                 _ => PageSize.A4
             };
             return retrato ? pz : pz.Rotate();
